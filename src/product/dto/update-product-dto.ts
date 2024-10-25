@@ -11,7 +11,7 @@ export class UpdateProductDto {
   description: string;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   price: number;
 
   @IsString()
@@ -19,6 +19,6 @@ export class UpdateProductDto {
   image?: string;
 
   @IsUUID()
-  @IsNotEmpty()
+  @IsOptional()
   categoryId: string;
 }
