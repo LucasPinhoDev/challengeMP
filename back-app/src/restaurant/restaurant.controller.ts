@@ -8,17 +8,30 @@ import {
   Body,
   HttpStatus,
   UseGuards,
+  Headers,
 } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantDto } from './dto/create-restaurant-dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant-dto';
-import { JwtAuthGuard } from '../auth/jwt-auth-guard'; // Certifique-se de que o caminho esteja correto
+import { JwtAuthGuard } from '../auth/jwt-auth-guard';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
+@ApiTags('Restaurantes')
 @Controller('restaurants')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Criar um novo restaurante' })
+  @ApiResponse({ status: 201, description: 'Restaurante criado com sucesso!' })
+  @ApiResponse({ status: 400, description: 'Erro ao criar restaurante' })
+  @ApiBody({ type: CreateRestaurantDto })
   async create(@Body() createRestaurantDto: CreateRestaurantDto) {
     try {
       const restaurant =
@@ -39,6 +52,10 @@ export class RestaurantController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Buscar um restaurante pelo ID' })
+  @ApiResponse({ status: 200, description: 'Restaurante encontrado!' })
+  @ApiResponse({ status: 404, description: 'Erro ao buscar restaurante' })
   async findOne(@Param('id') id: string) {
     try {
       const restaurant = await this.restaurantService.findOne(id);
@@ -58,6 +75,10 @@ export class RestaurantController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Listar todos os restaurantes' })
+  @ApiResponse({ status: 200, description: 'Lista de restaurantes' })
+  @ApiResponse({ status: 500, description: 'Erro ao buscar restaurantes' })
   async findAll() {
     try {
       const restaurants = await this.restaurantService.findAll();
@@ -77,14 +98,25 @@ export class RestaurantController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Atualizar um restaurante pelo ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Restaurante atualizado com sucesso!',
+  })
+  @ApiResponse({ status: 404, description: 'Erro ao atualizar restaurante' })
+  @ApiBody({ type: UpdateRestaurantDto })
   async update(
     @Param('id') id: string,
     @Body() updateRestaurantDto: UpdateRestaurantDto,
+    @Headers('authorization') authHeader: string,
   ) {
+    const token = authHeader?.replace('Bearer ', '');
     try {
       const updatedRestaurant = await this.restaurantService.update(
         id,
         updateRestaurantDto,
+        token,
       );
       return {
         message: 'Restaurante atualizado com sucesso!',
@@ -102,6 +134,13 @@ export class RestaurantController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Remover um restaurante pelo ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Restaurante removido com sucesso!',
+  })
+  @ApiResponse({ status: 404, description: 'Erro ao remover restaurante' })
   async remove(@Param('id') id: string) {
     try {
       await this.restaurantService.remove(id);

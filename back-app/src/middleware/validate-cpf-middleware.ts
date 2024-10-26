@@ -1,4 +1,3 @@
-// src/middleware/validate-cpf.middleware.ts
 import { Injectable, NestMiddleware, BadRequestException } from '@nestjs/common';
 
 @Injectable()

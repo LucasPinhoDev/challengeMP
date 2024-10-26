@@ -1,15 +1,20 @@
-// src/reservation/reservation.controller.ts
 import { Controller, Post, Get, Patch, Delete, Param, Body, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { CreateReservationDto } from './dto/create-reservation-dto';
 import { UpdateReservationDto } from './dto/update-reservation-dto';
 import { JwtAuthGuard } from '../auth/jwt-auth-guard';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Reservas')
 @Controller('reservations')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Criar uma nova reserva' })
+  @ApiResponse({ status: 201, description: 'Reserva criada com sucesso!' })
+  @ApiResponse({ status: 500, description: 'Erro ao criar reserva' })
+  @ApiBody({ type: CreateReservationDto })
   async create(@Body() createReservationDto: CreateReservationDto) {
     try {
       const reservation = await this.reservationService.create(createReservationDto);
@@ -29,6 +34,10 @@ export class ReservationController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Listar todas as reservas' })
+  @ApiResponse({ status: 200, description: 'Reservas recuperadas com sucesso!' })
+  @ApiResponse({ status: 404, description: 'Nenhuma reserva encontrada' })
   async findAll() {
     try {
       const reservations = await this.reservationService.findAll();
@@ -47,6 +56,9 @@ export class ReservationController {
   }
 
   @Get('/cpf/:cpf')
+  @ApiOperation({ summary: 'Buscar reservas por CPF' })
+  @ApiResponse({ status: 200, description: 'Reserva recuperada com sucesso!' })
+  @ApiResponse({ status: 404, description: 'Erro ao recuperar reserva' })
   async findByCpf(@Param('cpf') cpf: string) {
     try {
       const reservation = await this.reservationService.findByCpf(cpf);
@@ -65,8 +77,10 @@ export class ReservationController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar uma reserva pelo ID' })
+  @ApiResponse({ status: 200, description: 'Reserva recuperada com sucesso!' })
+  @ApiResponse({ status: 404, description: 'Erro ao recuperar reserva' })
   async findOne(@Param('id') id: string, @Body('cpf') cpf?: string) {
-    console.log(cpf);
     try {
       const reservation = await this.reservationService.findOne(id, cpf);
       return {
@@ -84,6 +98,10 @@ export class ReservationController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Atualizar uma reserva pelo ID' })
+  @ApiResponse({ status: 200, description: 'Reserva atualizada com sucesso!' })
+  @ApiResponse({ status: 500, description: 'Erro ao atualizar reserva' })
+  @ApiBody({ type: UpdateReservationDto })
   async update(@Param('id') id: string, @Body() updateReservationDto: UpdateReservationDto, @Body('cpf') cpf?: string) {
     try {
       const updatedReservation = await this.reservationService.update(id, updateReservationDto, cpf);
@@ -102,6 +120,9 @@ export class ReservationController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Remover uma reserva pelo ID' })
+  @ApiResponse({ status: 200, description: 'Reserva removida com sucesso!' })
+  @ApiResponse({ status: 500, description: 'Erro ao remover reserva' })
   async remove(@Param('id') id: string, @Body('cpf') cpf?: string) {
     try {
       await this.reservationService.remove(id, cpf);
@@ -118,3 +139,4 @@ export class ReservationController {
     }
   }
 }
+

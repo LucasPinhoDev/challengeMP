@@ -1,4 +1,3 @@
-// src/reservation/reservation.module.ts
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { ReservationController } from './reservation.controller';
@@ -19,6 +18,6 @@ export class ReservationModule {
         { path: 'reservations/:id', method: RequestMethod.PATCH },
         { path: 'reservations/:id', method: RequestMethod.DELETE },
         { path: 'reservations', method: RequestMethod.POST }
-      ); // Aplica o middleware apenas onde o CPF é obrigatório
+      );
   }
 }
