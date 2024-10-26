@@ -20,7 +20,7 @@ async function main() {
 
   console.log("Inserir Categorias!!");  
   const appetizerCategory = await prisma.category.upsert({
-    where: { id: uuidv4() }, // Gera um novo UUID para cada categoria
+    where: { id: uuidv4() },
     update: {},
     create: {
       id: uuidv4(),

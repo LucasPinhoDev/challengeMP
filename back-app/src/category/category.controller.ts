@@ -1,16 +1,36 @@
-import { Controller, Post, Get, Patch, Delete, Param, Body, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category-dto';
 import { UpdateCategoryDto } from './dto/update-category-dto';
-import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt-auth-guard'; // Certifique-se de que o caminho esteja correto
+import { JwtAuthGuard } from '../auth/jwt-auth-guard';
 
+@ApiTags('Categorias')
+@ApiBearerAuth()
 @Controller('categories')
 @UseGuards(JwtAuthGuard)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Criar uma nova categoria' })
+  @ApiResponse({ status: 201, description: 'Categoria criada com sucesso.' })
+  @ApiResponse({ status: 400, description: 'Erro ao criar categoria.' })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     try {
       const category = await this.categoryService.create(createCategoryDto);
@@ -29,6 +49,11 @@ export class CategoryController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Recuperar todas as categorias' })
+  @ApiResponse({
+    status: 200,
+    description: 'Categorias recuperadas com sucesso.',
+  })
   async findAll() {
     try {
       const categories = await this.categoryService.findAll();
@@ -47,6 +72,12 @@ export class CategoryController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Recuperar uma categoria pelo ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Categoria recuperada com sucesso.',
+  })
+  @ApiResponse({ status: 404, description: 'Categoria não encontrada.' })
   async findOne(@Param('id') id: string) {
     try {
       const category = await this.categoryService.findOne(id);
@@ -65,9 +96,21 @@ export class CategoryController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+  @ApiOperation({ summary: 'Atualizar uma categoria pelo ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Categoria atualizada com sucesso.',
+  })
+  @ApiResponse({ status: 404, description: 'Categoria não encontrada.' })
+  async update(
+    @Param('id') id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
     try {
-      const updatedCategory = await this.categoryService.update(id, updateCategoryDto);
+      const updatedCategory = await this.categoryService.update(
+        id,
+        updateCategoryDto,
+      );
       return {
         message: 'Categoria atualizada com sucesso!',
         statusCode: HttpStatus.OK,
@@ -83,6 +126,9 @@ export class CategoryController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Remover uma categoria pelo ID' })
+  @ApiResponse({ status: 200, description: 'Categoria removida com sucesso.' })
+  @ApiResponse({ status: 404, description: 'Categoria não encontrada.' })
   async remove(@Param('id') id: string) {
     try {
       await this.categoryService.remove(id);

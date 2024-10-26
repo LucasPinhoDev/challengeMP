@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service'; // Supondo que você tenha um serviço Prisma
+import { PrismaService } from '../prisma/prisma.service';
 import { LoginRestaurantDto } from '../restaurant/dto/login-restaurant-dto';
 import * as bcrypt from 'bcryptjs';
 
@@ -19,7 +19,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const payload = { email: restaurant.email, sub: restaurant.id };
+    const payload = { id: restaurant.id, email: restaurant.email };
     return {
       access_token: this.jwtService.sign(payload),
     };
